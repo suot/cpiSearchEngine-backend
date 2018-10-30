@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,Chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <title>临床数据收集系统</title>
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet" href="../static/css/bootstrap.css"/>
+    <link th:href="@{/css/bootstrap-progressbar-3.3.4.min.css}" rel="stylesheet" href="../static/css/bootstrap-progressbar-3.3.4.min.css"/>
+    <link th:href="@{/css/custom.min.css}" rel="stylesheet" href="../static/css/custom.min.css"/>
+
+
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet" href="../static/css/font-awesome.min.css"/>
+    <link th:href="@{/css/fileinput.min.css}" media="all" rel="stylesheet" type="text/css" href="../static/css/fileinput.min.css"/>
+    <link th:href="@{/css/nprogress.css}" rel="stylesheet" href="../static/css/nprogress.css"/>
+    <link th:href="@{/css/select2.min.css}" rel="stylesheet" href="../static/css/select2.min.css"/>
+    <link th:href="@{/css/dataTables/jquery.dataTables.css}" rel="stylesheet" type="text/css" href="../static/css/dataTables/jquery.dataTables.css"/>
+    <link th:href="@{/css/bootstrapValidator.min.css}" rel="stylesheet" type="text/css" href="../static/css/bootstrapValidator.min.css"/>
+
+    <link th:href="@{/css/customwizard.css}" rel="stylesheet" href="../static/css/customwizard.css"/>
+    <link th:href="@{/css/news/default.css}" rel="stylesheet" href="../static/css/news/default.css"/>
+    <link th:href="@{/css/news/normalize.css}" rel="stylesheet" href="../static/css/news/normalize.css"/>
+    <link th:href="@{/css/news/site.css}" rel="stylesheet" href="../static/css/news/site.css"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet" href="../static/css/animate.css"/>
+    <!--自定义的css，用来规定jquery.validate中的input.error, label.error-->
+    <link th:href="@{/css/validate.css}" rel="stylesheet" href="../static/css/validate.css"/>
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    设置
+                                    <span class="fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li sec:authorize="hasAnyAuthority('projectManager, doctor, statistician')"><a href="#" th:text="修改密码" onclick="User.ModifyPassword()">修改密码</a></li>
+                                    <li sec:authorize="hasAnyAuthority('projectManager, doctor, statistician')"><a href="#" th:text="修改个人资料" onclick="User.ModifyUser()">修改个人资料</a></li>
+                                    <li><a href="#">关于</a></li>
+                                    <li><a href="/readme" target="_blank">帮助</a></li>
+                                    <!--TODO
+                                        用js load 加載readme頁面
+                                        -->
+                                    <li>
+                                        <form th:action="@{/logout}" class="center" method="post">
+                                            <input type="submit" class="btn btn-primary submit" value="退出"/>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- top navigation -->
+
+            <!-- left menu -->
+            <div class="col-md-3 left_col">
+                <div class="scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="#" class="site_title"><i class="fa fa-paw"></i><span> 临床数据管理系统</span></a>
+                    </div>
+                    <!--menu quick info-->
+                    <div class="profile clearfix">
+                        <div class="profile_info">
+                            <span th:inline="text">你好 [[${userLoggedIn.getName()}]] [[${role}]]</span>
+                        </div>
+                    </div>
+                    <br/>
+                    <!--menu quick info-->
+                    <!--sidebar menu-->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>导航</h3>
+                            <ul class="nav side-menu">
+                                <!--项目管理-->
+                                <li sec:authorize="hasAnyAuthority('ROLE_admin, projectManager')"><a ><i class="fa fa-sitemap"></i> 人员机构管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li><a href="#" th:text="机构管理" onclick="Organization.ListAllOrganizations()">机构管理</a></li>
+                                        <li><a href="#" th:text="人员管理" onclick="User.ListAllUsers()">人员管理</a></li>
+                                        <li sec:authorize="hasAnyAuthority('ROLE_admin')"><a href="#" th:text="重置密码" onclick="User.ResetPassword()">重置密码</a></li>
+                                    </ul>
+                                </li>
+                                <li><a ><i class="fa fa-sitemap"></i> 项目管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li sec:authorize="hasAnyAuthority('ROLE_admin, projectManager')"><a href="#" th:text="项目列表" onclick="Project.ListAllProjects()">项目列表</a></li>
+                                        <li sec:authorize="hasAnyAuthority('projectManager, doctor, statistician')"><a href="#" th:text="切换项目" onclick="Project.ListMyProjects()">切换项目</a></li>
+                                        <li sec:authorize="hasAnyAuthority('projectManager')"><a href="#" th:text="权限设置" onclick="Role.SetRoles()">权限设置</a></li>
+                                    </ul>
+                                </li>
+                                <!--end 当前项目-->
+
+                                <!--受试者管理-->
+                                <li sec:authorize="hasAnyAuthority('projectManager, doctor, statistician')"><a><i class="fa fa-random"></i>随机管理 <span class="fa fa-chevron-down"></span></a>
+                                    <ul class="nav child_menu">
+                                        <li sec:authorize="hasAnyAuthority('statistician')"><a href="#" th:text="随机设置" onclick="Random.RandomGrouping()">随机设置</a></li>
+                                        <li sec:authorize="hasAnyAuthority('doctor')"><a href="#" th:text="取号" onclick="Random.FetchSequenceNumber()">取号</a></li>
+                                        <li sec:authorize="hasAnyAuthority('doctor')"><a href="#" th:text="查看取号结果" onclick="Random.CheckSequenceNumberList()">查看取号结果</a></li>
+                                        <li sec:authorize="hasAnyAuthority('projectManager, statistician')"><a href="#" th:text="揭盲" onclick="Random.UnfoldBlindness()">揭盲</a></li>
+                                    </ul>
+                                </li>
+                                <!--end 受试者管理-->
+
+                                <!--项目报告-->
+                                <!--<li><a><i class="fa fa-book"></i> 项目报告 <span class="fa fa-chevron-down"></span></a>-->
+                                    <!--<ul class="nav child_menu">-->
+                                        <!--<li><a href="#">受试者随机报告</a></li>-->
+                                        <!--<li><a href="#">受试者揭盲报告</a></li>-->
+                                    <!--</ul>-->
+                                <!--</li>-->
+                                <!--end 项目报告-->
+                                <!--项目日志-->
+                                <li><a href="/return_back_to_mainpage" id="return_back_to_mainpage"><i class="fa fa-search"></i> 回到首页 </a></li>
+                                <!--end 项目日志-->
+                                <!--项目搜索-->
+                                <!--<li><a href="javascript:void(0);"><i class="fa fa-search"></i> 项目搜索 </a></li>-->
+                                <!--end 项目搜索-->
+                            </ul>
+                        </div>
+                    </div>
+                    <!--sidebar menu-->
+                    <!--sidebar footer-->
+                    <div class="sidebar-footer">
+                        <!--<img src="/images/macrolibLogo.jpg" alt="By ClinicLib"/>-->
+                    </div>
+                    <!--sidebar footer-->
+                </div>
+            </div>
+            <!--end left menu-->
+
+            <!--page content-->
+            <div class="right_col" role="main">
+                <div class="">
+                    <!--<div class="page-title">-->
+                        <!--<div class="title_left">-->
+                            <!--<h3>项目信息</h3>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="x_panel">
+                                <div class="x_title" id="headLineInMainPanel">
+                                    <h2 id="module-title"><span th:inline="text">[[${projectInfo.getProject().getAbbreviation()}]]</span></h2>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="x_content">
+                                    <div id="resultsBlock">
+                                        <div class="col-md-9 col-sm-9 col-xs-12">
+                                            <ul class="stats-overview">
+                                                <li>
+                                                    <span class="name"> 已取药 </span>
+                                                    <span class="value text-success" th:inline="text"> [[${randomNumberUsed}]] </span>
+                                                </li>
+                                                <li>
+                                                    <span class="name"> 试验总数 </span>
+                                                    <span class="value text-success" th:inline="text"> [[${sampleSize}]] </span>
+                                                </li>
+                                                <li class="hidden-phone">
+                                                    <span class="name"> 试验进行天数 </span>
+                                                    <span class="value text-success" th:inline="text"> [[${interval}]] </span>
+                                                </li>
+                                            </ul>
+                                            <br />
+                                            <div id="mainb" style="height:350px;"></div>
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">
+                                                    <span class="glyphicon glyphicon-list-alt"></span><b>最近操作</b>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="row" th:unless="${#lists.isEmpty(operationRecords)}">
+                                                        <div class="col-xs-12">
+                                                            <ul class="recentActivities">
+                                                                <li class="news-item" th:each="record:${operationRecords}">
+                                                                    <table cellpadding="4">
+                                                                        <!--<tr th:each="operation:${operationRecordList}" th:class="${operation.getUserProperty()}">-->
+                                                                        <tr>
+                                                                            <td><img src="/images/patient.jpg" width="50" class="img-circle" /></td>
+                                                                            <td><span th:inline="text">  [[${record.getRole()}]]  [[${record.getName()}]]  [[${record.getCreateTime().toString().substring(0,16)}]]  [[${record.getOperation()}]]</span></td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel-footer"></div>
+                                            </div>
+                                        </div>
+                                        <!-- start project-detail sidebar -->
+                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                            <section class="panel">
+                                                <div class="x_title">
+                                                    <h2>项目描述</h2>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <h3 class="green"><i class="fa fa-paint-brush"></i><span th:inline="text">[[ ${projectInfo.getProject().getAbbreviation()}]]</span></h3>
+                                                    <p><span th:inline="text">[[${projectInfo.getProject().getDescription()}]]</span></p>
+                                                    <br/>
+                                                    <div class="project_detail">
+                                                        <p class="title">项目编码</p>
+                                                        <p><span th:inline="text">[[${projectInfo.getProject().getProjectNumber()}]]</span></p>
+                                                        <p class="title">研究编号</p>
+                                                        <p><span th:inline="text">[[${projectInfo.getProject().getResearchId()}]]</span></p>
+                                                        <p class="title">申办单位</p>
+                                                        <p><span th:inline="text">[[${projectInfo.getOrganization().getName()}]]</span></p>
+                                                        <p class="title">临床研究单位</p>
+                                                        <p><span th:inline="text">[[${projectInfo.getResearchOrganizationNames()}]]</span></p>
+                                                        <p class="title">状态</p>
+                                                        <p><span th:inline="text">[[${projectInfo.getProject().getStatus()}]]</span></p>
+                                                    </div>
+                                                    <br/>
+                                                    <h5>项目其他信息</h5>
+                                                    <ul class="list-unstyled project_files">
+                                                        <li>方案号: <span th:inline="text">[[${projectInfo.getProject().getPlanNumber()}]]</span></li>
+                                                        <li>批号: <span th:inline="text">[[${projectInfo.getProject().getBatchNumber()}]]</span></li>
+                                                        <li>伦理号: <span th:inline="text">[[${projectInfo.getProject().getEthicNumber()}]]</span></li>
+                                                        <li>摘要: <span th:inline="text">[[${projectInfo.getProject().getDescription()}]]</span></li>
+                                                    </ul>
+                                                    <br/>
+                                                </div>
+                                            </section>
+                                        </div>
+                                        <!-- end project-detail sidebar -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div class="clearfix"></div>-->
+                </div>
+            </div>
+            <!-- /page content -->
+
+            <!--footer-->
+            <footer>
+                <div class="pull-right">
+                    ©2018 By Macrolib.
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!--footer-->
+        </div>
+            <!--end page content-->
+        </div>
+    </div>
+
+    <script th:src="@{/js/jquery.js}" src="../static/js/jquery.js"></script>
+    <script th:src="@{/js/bootstrap.min.js}" src="../static/js/bootstrap.min.js"></script>
+    <script th:src="@{/js/custom.js}" src="../static/js/custom.js"></script>
+
+
+    <script th:src="@{/js/dataTables/jquery.dataTables.js}"></script>
+    <script th:src="@{/js/bootstrap-notify.min.js}"></script>
+    <script th:src="@{/js/bootstrap-progressbar.min.js}"></script>
+    <script th:src="@{/js/validator/bootstrapValidator.min.js}"></script>
+
+    <script th:src="@{/js/jquery.bootstrap.wizard.min.js}"></script>
+
+
+    <script th:src="@{/js/echarts-all.js}"></script>
+    <script th:src="@{/js/select2/select2.min.js}"></script>
+    <script th:src="@{/js/select2/zh-CN.js}"></script>
+    <script th:src="@{/js/fileinput.min.js}"></script>
+    <script th:src="@{/js/theme.min.js}"></script>
+
+    <script th:src="@{/js/edc/edc.js}"></script>
+    <script th:src="@{/js/edc/user.js}"></script>
+    <script th:src="@{/js/edc/project.js}"></script>
+    <script th:src="@{/js/edc/organization.js}"></script>
+    <script th:src="@{/js/edc/role.js}"></script>
+    <script th:src="@{/js/edc/random.js}"></script>
+
+    <script th:src="@{/js/jquery.bootstrap.newsbox.min.js}"></script>
+    <script th:src="@{/js/validator/jquery.validate.min.js}"></script>
+    <script th:src="@{/js/validator/messages_zh.min.js}"></script>
+</body>
+</html>

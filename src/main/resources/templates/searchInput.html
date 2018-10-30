@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html  xmlns="http://www.w3.org/1999/xhtml"
+       xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>临床数据收集系统 </title>
+
+    <link th:href="@{/css/bootstrap.css}" rel="stylesheet" href="../static/css/bootstrap.css"/>
+    <link th:href="@{/css/font-awesome.min.css}" rel="stylesheet" href="../static/css/font-awesome.min.css"/>
+    <link th:href="@{/css/nprogress.css}" rel="stylesheet" href="../static/css/nprogress.css"/>
+    <link th:href="@{/css/animate.css}" rel="stylesheet" href="../static/css/animate.css"/>
+    <link th:href="@{/css/custom.min.css}" rel="stylesheet" href="../static/css/custom.min.css"/>
+</head>
+
+<body class="login">
+<div>
+    <a class="hiddenanchor" id="signup"></a>
+    <a class="hiddenanchor" id="signin"></a>
+
+    <div class="login_wrapper">
+        <div class="animate form login_form">
+            <section class="login_content">
+                <form th:action="@{/login}" th:method="post">
+                    <h1>欢迎登录</h1>
+                    <div>
+                        <input type="text" class="form-control" th:name="username" placeholder="用户名" required="required" />
+                    </div>
+                    <div>
+                        <input class="form-control" type="password" th:name="password" placeholder="密码" required="required" />
+                        <span class="help-block" style="color:mediumvioletred;" th:if="${param.error}">用户名或密码错误，请重试</span>
+                    </div>
+
+                    <div>
+                        <!--<a class="btn btn-default submit" href="mainpage.html">Log in</a>-->
+                        <input th:type="submit" class="btn btn-default submit" th:value="登录"/>
+                        <a class="reset_pass" href="#">忘记密码?</a>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="separator">
+                        <p class="change_link">需要登录?
+                            <a href="#signup" class="to_register"> 申请用户 </a>
+                        </p>
+
+                        <div class="clearfix"></div>
+                        <br />
+
+                        <div>
+                            <h1><i class="fa fa-paw"></i> 临床数据收集系统</h1>
+                            <p>©2018 By Macrolib.</p>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <div id="register" class="animate form registration_form">
+            <section class="login_content">
+                <form>
+                    <h1>欢迎使用</h1>
+
+                    <div>
+                        <br/>
+                        <h3>请与管理员联系：</h3><br/>
+                        <h3><i class="fa fa-envelope"></i> suo.tian@macrolib.com</h3>
+                        <br/><br/>
+                    </div>
+                    <div class="clearfix"></div>
+
+                    <div class="separator">
+                        <p class="change_link">已经是用户 ?
+                            <a href="#signin" class="to_register"> 回到登录页面 </a>
+                        </p>
+
+                        <div class="clearfix"></div>
+                        <br />
+
+                        <div>
+                            <h1><i class="fa fa-paw"></i> 临床数据收集系统</h1>
+                            <p>©2018 By Cxtro.</p>
+                        </div>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+</body>
+</html>
