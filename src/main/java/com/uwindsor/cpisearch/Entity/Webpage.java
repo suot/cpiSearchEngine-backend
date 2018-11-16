@@ -3,34 +3,41 @@ package com.uwindsor.cpisearch.Entity;
 import java.util.HashMap;
 
 public class Webpage {
-    //private String id;
-    private String name;
-    private String time;
-    private String path;
+    private String url;
+    private String title;
+    private String text;
     private HashMap<String, Integer> wordFrequency;
 
-    public String getName() {
-        return name;
+
+    public Webpage(String url, String title, String text, HashMap<String, Integer> wordFrequency) {
+        this.url = url;
+        this.title = title;
+        this.text = text;
+        this.wordFrequency = wordFrequency;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getUrl() {
+        return url;
     }
 
-    public String getTime() {
-        return time;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public String getTitle() {
+        return title;
     }
 
-    public String getPath() {
-        return path;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public HashMap<String, Integer> getWordFrequency() {
