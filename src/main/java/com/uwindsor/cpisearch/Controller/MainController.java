@@ -1,9 +1,15 @@
 package com.uwindsor.cpisearch.Controller;
 
 import com.uwindsor.cpisearch.Entity.Webpage;
+import com.uwindsor.cpisearch.Service.CPIStartupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Suo Tian on 2018/10/30.
@@ -13,17 +19,23 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/cpi")
 public class MainController {
+    @Autowired
+    private CPIStartupService cpiStartupService;
+
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
     private static Webpage[] webpages;
 
-    @RequestMapping("/access_url")
-    public String searchInput(@RequestParam String url) {
-        //print out updated url
-        logger.info("Request to update access url is received. New access url is: " + url);
+//    @RequestMapping("/startup")
+//    public String cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
+//        cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
+////        return CPIStartupService.getInvertedIndexHashMap();
+//        return domain;
+//    }
 
-        //
-
-        return "access url is updated";
+    @RequestMapping("/startup")
+    public HashMap<String, List<Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
+        cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
+        return CPIStartupService.getInvertedIndexHashMap();
     }
 
     @RequestMapping("/search")
