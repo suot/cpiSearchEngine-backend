@@ -1,19 +1,20 @@
 package com.uwindsor.cpisearch.Entity;
 
+import com.uwindsor.cpisearch.Util.TST;
+
 import java.util.HashMap;
 
 public class Webpage {
     private String url;
     private String title;
     private String text;
-    private HashMap<String, Integer> wordFrequency;
+    private TST<Integer> tst;
 
 
-    public Webpage(String url, String title, String text, HashMap<String, Integer> wordFrequency) {
+    public Webpage(String url, String title, String text) {
         this.url = url;
         this.title = title;
         this.text = text;
-        this.wordFrequency = wordFrequency;
     }
 
     public String getUrl() {
@@ -40,11 +41,11 @@ public class Webpage {
         this.text = text;
     }
 
-    public HashMap<String, Integer> getWordFrequency() {
-        return wordFrequency;
+    public TST<Integer> getTst() {
+        return tst;
     }
 
-    public void setWordFrequency(HashMap<String, Integer> wordFrequency) {
-        this.wordFrequency = wordFrequency;
+    public void setTst(TST<Integer> tst) {
+        this.tst = tst;
     }
 }
