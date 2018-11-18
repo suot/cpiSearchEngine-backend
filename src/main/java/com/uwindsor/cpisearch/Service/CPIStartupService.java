@@ -132,46 +132,11 @@ public class CPIStartupService {
      * @param url: entry url
      * @param pattern: to filter those url links inside the domain's website
      * @param maximumAmount: the minimum amount of links, telling recurse to stop moving deep, add current url, and move backward to parents who revokes it.
-     *                     The final amount of links will exceed this minimum value too much maybe.
-     *                     It is a way to diversify links, without clustering one child link and its descendants into the hash map.
      * @param depth: added from 0 to the maximumDepth.
      * @param maximumDepth: depth of the url to stop the recurse
-     * @return the entry url called by
+     * @return
      * @throws IOException
      */
-//    private String addUrlToHashSet1(String url, String pattern, int maximumAmount, int depth, int maximumDepth) {
-//        //Filter out links matching the pattern.
-//        System.out.println("Access url: "+url);
-//        try {
-//            Document doc = Jsoup.connect(url).timeout(TIME_OUT).get();
-//            Elements links = doc.select(pattern);
-//
-//            //End recurse when amount of unique links reaches amountLimit, when depth reaches depthLimit, or when there is no links in the url.
-//            if(depth == maximumDepth || urlHashSet.size() >= maximumAmount){
-//                //nothing will be added into hashSet, because domainUrl is duplicated.
-//                return domainUrl;
-//            }
-//            else{
-//                urlHashSet.add(url);
-//                System.out.println("Added url");
-//
-//                if(links.size() > 0){
-//                    //recursively find all links matching the regex pattern.
-//                    depth++;
-//                    for (Element link : links) {
-//                        String linkUrl = link.attr("abs:href");
-//                        urlHashSet.add(addUrlToHashSet(linkUrl, pattern, maximumAmount, depth, maximumDepth));
-//                    }
-//                }
-//                return domainUrl;
-//            }
-//        }catch (Exception e){
-//            logger.info("Error: " + e + " happens when accessing url: " + url);
-//        }finally {
-//            return domainUrl;
-//        }
-//    }
-
     private void addUrlToHashSet(String url, String pattern, int maximumAmount, int depth, int maximumDepth) {
         try {
             Document doc = Jsoup.connect(url).timeout(TIME_OUT).get();
