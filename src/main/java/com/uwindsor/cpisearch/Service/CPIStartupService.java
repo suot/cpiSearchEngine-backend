@@ -200,7 +200,7 @@ public class CPIStartupService {
                 }
             }
         }catch (Exception e){
-            logger.info("Error happens when accessing url: " + url + " Error: " + e);
+            logger.error("Error happens when accessing url: " + url + " Error: " + e);
         }
     }
 
@@ -232,6 +232,7 @@ public class CPIStartupService {
                         continue;
                     }
                 }
+                logger.info("Step 3: webpageList is generated successfully with size of " + webpageList.size());
             }
         }
     }
