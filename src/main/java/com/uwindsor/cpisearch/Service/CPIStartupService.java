@@ -20,7 +20,7 @@ public class CPIStartupService {
     private static String domainUrl;
     private static HashSet<String> urlHashSet;
     private static List<Webpage> webpageList;
-    private static HashSet<String> wordHashSet;
+    private static HashMap<String, Integer> wordHashMap;
     private static HashMap<String, List<Integer>> invertedIndexHashMap;
 
 
@@ -32,8 +32,8 @@ public class CPIStartupService {
         return webpageList;
     }
 
-    public static HashSet<String> getWordHashSet() {
-        return wordHashSet;
+    public static HashMap<String, Integer> getWordHashMap() {
+        return wordHashMap;
     }
 
     public static HashMap<String, List<Integer>> getInvertedIndexHashMap() {
@@ -75,7 +75,7 @@ public class CPIStartupService {
         domainUrl = null;
         urlHashSet = null;
         webpageList = null;
-        wordHashSet = null;
+        wordHashMap = null;
         invertedIndexHashMap = null;
     }
 
@@ -203,7 +203,7 @@ public class CPIStartupService {
     }
 
     /**
-     * Generate TST for every Webpage object in webpageList and generate a global variable wordHashSet to store all the words occurred in all web pages.
+     * Generate TST for every Webpage object in webpageList and generate a global variable wordHashMap to store all the words and their total frequency occurred in all web pages.
      * @throws IOException
      */
     private void generateTST() throws IOException {
@@ -215,7 +215,7 @@ public class CPIStartupService {
                 String delimiter = " `~!@#$%^&*()_+=[]{}|\\;\':\",.?/<>\n\r\t\b\f";
                 StringTokenizer tokenizer;
                 TST<Integer> tst;
-                wordHashSet = new HashSet<>();
+                wordHashMap = new HashMap<>();
 
                 //Traverse every webpage
                 logger.info("Traverse webpageList and construct TST for every webpage.");
@@ -240,7 +240,11 @@ public class CPIStartupService {
                     webpage.setTst(tst);
 
                     for(String key : tst.keys()) {
-                        wordHashSet.add(key);
+                        if(wordHashMap.containsKey(key)){
+                            wordHashMap.put(key, wordHashMap.get(key) + tst.get(key));
+                        }else {
+                            wordHashMap.put(key, tst.get(key));
+                        }
                     }
                 }
             }
@@ -252,11 +256,11 @@ public class CPIStartupService {
      */
     private void generateInvertedIndex(){
         logger.info("Step 5: Generate invertedIndexHashMap.");
-        if(webpageList != null && wordHashSet != null) {
-            if (!webpageList.isEmpty() && !wordHashSet.isEmpty()) {
+        if(webpageList != null && wordHashMap != null) {
+            if (!webpageList.isEmpty() && !wordHashMap.isEmpty()) {
                 TST<Integer> tst;
                 invertedIndexHashMap = new HashMap<>();
-                for(String word : wordHashSet){
+                for(String word : wordHashMap.keySet()){
                     //<word1, {word1's frequency in web1, word1's frequency in web2...}> is the entry pair in invertedIndexHashMap
                     invertedIndexHashMap.put(word, new ArrayList<>());
 
