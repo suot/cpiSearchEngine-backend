@@ -1,10 +1,10 @@
 package com.uwindsor.cpisearch.Service;
 
 import com.uwindsor.cpisearch.Entity.Webpage;
+import com.uwindsor.cpisearch.Util.InvertedIndex;
 import com.uwindsor.cpisearch.Util.TST;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +20,10 @@ public class CPIStartupService {
     private static String domainUrl;
     private static HashSet<String> urlHashSet;
     private static List<Webpage> webpageList;
-    private static HashMap<String, Integer> wordHashMap;
-    private static HashMap<String, List<Integer>> invertedIndexHashMap;
+    private static HashSet<String> wordBlackList;
+    //<word, <indexOfWebPage, frequencyInEveryWebPage>>
+    private static TST<HashMap<Integer, Integer>> tst;
+    private static InvertedIndex<String, Integer, Integer> invertedIndex;
 
 
     public static HashSet<String> getUrlHashSet() {
@@ -32,13 +34,10 @@ public class CPIStartupService {
         return webpageList;
     }
 
-    public static HashMap<String, Integer> getWordHashMap() {
-        return wordHashMap;
+    public static InvertedIndex<String, Integer, Integer> getInvertedIndex() {
+        return invertedIndex;
     }
 
-    public static HashMap<String, List<Integer>> getInvertedIndexHashMap() {
-        return invertedIndexHashMap;
-    }
 
     /**
      * Generate a global list containing Webpage objects. Each Webpage object has title, text extracted from url html, and TST extracted from its text and containing the <word, frequency> pairs for further sorting or ranking use.
@@ -75,8 +74,10 @@ public class CPIStartupService {
         domainUrl = null;
         urlHashSet = null;
         webpageList = null;
-        wordHashMap = null;
-        invertedIndexHashMap = null;
+        invertedIndex = null;
+
+        wordBlackList = new HashSet<>();
+        wordBlackList.addAll(Arrays.asList("a", "an", "the", "this", "that", "it", "they", "i", "these", "those", "am", "is", "are"));
     }
 
 
@@ -203,80 +204,66 @@ public class CPIStartupService {
     }
 
     /**
-     * Generate TST for every Webpage object in webpageList and generate a global variable wordHashMap to store all the words and their total frequency occurred in all web pages.
-     * @throws IOException
+     * Generate a global TST to store all the words and their frequency occurred in every web page, identified by the index of webpage in the webpageList.
      */
-    private void generateTST() throws IOException {
-        logger.info("Step 4: Generate TST for every object in webpageList using StringTokenizer.");
+    private void generateTST() {
+        logger.info("Step 4: Generate a global TST with pairs of <word, <index, frequency>> using StringTokenizer.");
         if(webpageList != null){
             if(!webpageList.isEmpty()){
                 //Define delimiters and initialize a StringTokenizer object. Delimiter does not include '-', meaning that a-b is a different word from a or b.
                 logger.info("Define delimiters and initialize a StringTokenizer object. Delimiter does not include '-'.");
                 String delimiter = " `~!@#$%^&*()_+=[]{}|\\;\':\",.?/<>\n\r\t\b\f";
                 StringTokenizer tokenizer;
-                TST<Integer> tst;
-                wordHashMap = new HashMap<>();
 
                 //Traverse every webpage
-                logger.info("Traverse webpageList and construct TST for every webpage.");
-                logger.info("Every TST consists of <word, frequency> pairs. Two words in different case, upper or lower, are treated as one tokenizer.");
+                logger.info("Traverse webpageList and construct TST. Two words in different case, upper or lower, are treated as one tokenizer.");
+                tst = new TST<>();
+                Webpage webpage;
+                for(int i = 0; i< webpageList.size(); i++){
+                    webpage = webpageList.get(i);
 
-                for(Webpage webpage : webpageList){
                     tokenizer = new StringTokenizer(webpage.getText(), delimiter);
-                    tst = new TST<>();
                     String word;
+                    HashMap<Integer, Integer> hashMap;
 
                     while (tokenizer.hasMoreTokens()) {
                         //two words in different case, upper or lower, are treated as one tokenizer.
                         word = tokenizer.nextToken().toLowerCase();
-                        if(tst.contains(word)) {
-                            //<key, value>: <word, wordFrequency>
-                            tst.put(word, tst.get(word)+1);
-                        }else {
-                            tst.put(word, 1);
-                        }
-                    }
+                        //get rid of those unnecessary words, like: a, an, the, am, is, are...
+                        if(!wordBlackList.contains(word)) {
+                            if (tst.contains(word)) {
+                                hashMap = tst.get(word);
 
-                    webpage.setTst(tst);
+                                if(hashMap.containsKey(i)){
+                                    hashMap.put(i, hashMap.get(i) + 1);
+                                }else{
+                                    hashMap.put(i, 1);
+                                }
+                                tst.put(word, hashMap);
 
-                    for(String key : tst.keys()) {
-                        if(wordHashMap.containsKey(key)){
-                            wordHashMap.put(key, wordHashMap.get(key) + tst.get(key));
-                        }else {
-                            wordHashMap.put(key, tst.get(key));
+                            } else {
+                                tst.put(word, new HashMap<>());
+                                tst.get(word).put(i, 1);
+                            }
                         }
                     }
                 }
+                logger.info("The global tst has been generated with the size of " + tst.size());
             }
         }
     }
 
     /**
-     * Generate invertedIndexHashMap, which contains pairs of <word, {frequency in web1, frequency in web2...}>
+     * Generate invertedIndex, which contains pairs of <word, hashMap<index, frequency>>
      */
     private void generateInvertedIndex(){
-        logger.info("Step 5: Generate invertedIndexHashMap.");
-        if(webpageList != null && wordHashMap != null) {
-            if (!webpageList.isEmpty() && !wordHashMap.isEmpty()) {
-                TST<Integer> tst;
-                invertedIndexHashMap = new HashMap<>();
-                for(String word : wordHashMap.keySet()){
-                    //<word1, {word1's frequency in web1, word1's frequency in web2...}> is the entry pair in invertedIndexHashMap
-                    invertedIndexHashMap.put(word, new ArrayList<>());
-
-                    //Traverse webpageList, put word frequency of every word in every webpage into invertedIndexHashMap
-                    for(Webpage webpage : webpageList){
-                        tst = webpage.getTst();
-                        if(tst.contains(word)){
-                            invertedIndexHashMap.get(word).add(tst.get(word));
-                        }else{
-                            invertedIndexHashMap.get(word).add(0);
-                        }
-                    }
-                }
+        logger.info("Step 5: Generate invertedIndex with the type of <String, Integer, Integer>, denoting <word, <index, frequency>>.");
+        if(tst != null) {
+            invertedIndex = new InvertedIndex<>();
+            for(String word : tst.keys()) {
+                invertedIndex.getmHash().put(word, tst.get(word));
             }
         }
-        logger.info("InvertedIndexHashMap has been generated successfully with the size of " + invertedIndexHashMap.size());
+        logger.info("The invertedIndex has been generated successfully.");
     }
-
 }

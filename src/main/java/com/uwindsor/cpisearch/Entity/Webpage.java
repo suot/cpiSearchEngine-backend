@@ -1,15 +1,9 @@
 package com.uwindsor.cpisearch.Entity;
 
-import com.uwindsor.cpisearch.Util.TST;
-
-import java.util.HashMap;
-
 public class Webpage {
     private String url;
     private String title;
     private String text;
-    private TST<Integer> tst;
-
 
     public Webpage(String url, String title, String text) {
         this.url = url;
@@ -39,13 +33,5 @@ public class Webpage {
 
     public void setText(String text) {
         this.text = text;
-    }
-
-    public TST<Integer> getTst() {
-        return tst;
-    }
-
-    public void setTst(TST<Integer> tst) {
-        this.tst = tst;
     }
 }

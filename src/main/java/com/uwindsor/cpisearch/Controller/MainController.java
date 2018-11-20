@@ -33,9 +33,9 @@ public class MainController {
 //    }
 
     @RequestMapping("/startup")
-    public HashMap<String, List<Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
+    public HashMap<String, HashMap<Integer, Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
         cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
-        return CPIStartupService.getInvertedIndexHashMap();
+        return CPIStartupService.getInvertedIndex().getmHash();
     }
 
     @RequestMapping("/search")
