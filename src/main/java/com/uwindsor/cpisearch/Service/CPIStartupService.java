@@ -115,7 +115,7 @@ public class CPIStartupService {
      */
     private void generateUrlHashSet(String domain, String domainUrlPattern, int maximumAmount, int maximumDepth){
         logger.info("Step 2: Generate a global hash set and fill it with unique link urls recursively...");
-        domainUrl = "https://www" + domain;
+        domainUrl = "http://www" + domain;
         urlHashSet = new HashSet<>();
 
         logger.info("Recurse starts, adding embedded urls from the entry: " + domainUrl + ". Recurse will end when the amount of links exceeds " + maximumAmount + " or when the depth is " + maximumDepth);
