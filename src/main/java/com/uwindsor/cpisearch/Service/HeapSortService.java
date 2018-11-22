@@ -19,7 +19,7 @@ public class HeapSortService {
         frequency_mapper_to_page = new HashMap<Integer, ArrayList<Integer>>();
     }
 
-    public ArrayList<Integer> rankPages(){
+    public ArrayList<Integer> getRankedPageIndexes(){
             int i=0, page_no, freq=0;
 
             heap = new BinaryHeap<Integer>();

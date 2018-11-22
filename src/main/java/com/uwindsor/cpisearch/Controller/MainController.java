@@ -41,13 +41,24 @@ public class MainController {
     }
 
     @RequestMapping("/ranktest")
-    public ArrayList<Integer> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word) throws IOException {
+    public List<Webpage> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word) throws IOException {
         cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
 
         /* test search word */
-        HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().getmHash().get(word));
+        if(CPIStartupService.getInvertedIndex().getmHash().containsKey(word) && CPIStartupService.getInvertedIndex().get_all(word) != null){
+            HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().get_all(word));
 
-        return hs.rankPages();
+            List<Webpage> webpageList = new ArrayList<Webpage>();
+            for(int pi : hs.getRankedPageIndexes())
+                webpageList.add(CPIStartupService.getWebpageList().get(pi));
+
+            //NOTE: text search not applied yet
+            return webpageList;
+        }
+        else{
+            // return words from EDIT DISTANCE
+            return new ArrayList<>();
+        }
     }
 
     @RequestMapping("/search")
