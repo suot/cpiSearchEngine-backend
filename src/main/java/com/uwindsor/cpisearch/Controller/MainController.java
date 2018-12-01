@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Stack;
 
@@ -29,7 +30,10 @@ public class MainController {
 
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
     private static Webpage[] webpages;
+    private final int PAGE_OFFSET_LIMIT=5;
 
+public static HashMap<String, LinkedHashMap<Integer, Integer>> searched_pages_cache = new HashMap<String, LinkedHashMap<Integer, Integer>>();
+public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new HashMap<String, ArrayList<Integer>>();
 
     @RequestMapping("/startup")
     public HashMap<String, HashMap<Integer, Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
@@ -38,23 +42,55 @@ public class MainController {
     }
 
     @RequestMapping("/ranktest")
-    public List<Webpage> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word) throws IOException {
-        cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
+    public List<Webpage> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
 
-        /* test search word */
-        if(CPIStartupService.getInvertedIndex().getmHash().containsKey(word) && CPIStartupService.getInvertedIndex().get_all(word) != null){
-            HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().get_all(word));
+        if (pageOffset != null && searched_pages_cache.containsKey(word) && page_offset_trackor.containsKey(word) && page_offset_trackor.get(word).contains(pageOffset)) {
 
+            int start = page_offset_trackor.get(word).indexOf(pageOffset) * PAGE_OFFSET_LIMIT;
+            int end = start + PAGE_OFFSET_LIMIT;
+
+            ArrayList<Integer> pages = new ArrayList<Integer>(searched_pages_cache.get(word).keySet());
             List<Webpage> webpageList = new ArrayList<Webpage>();
-            for(int pi : hs.getRankedPageIndexes())
-                webpageList.add(CPIStartupService.getWebpageList().get(pi));
 
-            //NOTE: text search not applied yet
+            if (pages.size() < end)
+                end = pages.size();
+
+            for (int i = start; i < end; i++)
+                webpageList.add(CPIStartupService.getWebpageList().get(pages.get(i)));
+
             return webpageList;
-        }
-        else{
-            // return words from EDIT DISTANCE
-            return new ArrayList<>();
+
+        } else{
+
+            /* test search word */
+            if (CPIStartupService.getInvertedIndex().getmHash().containsKey(word) && CPIStartupService.getInvertedIndex().get_all(word) != null) {
+                HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().get_all(word), PAGE_OFFSET_LIMIT);
+
+                List<Webpage> webpageList = new ArrayList<Webpage>();
+
+
+                if (!searched_pages_cache.containsKey(word)) {
+                    searched_pages_cache.put(word, new LinkedHashMap<Integer, Integer>());
+                    page_offset_trackor.put(word, new ArrayList<Integer>());
+
+                    page_offset_trackor.get(word).add(pageOffset);
+
+                } else{
+                    page_offset_trackor.get(word).add(pageOffset);
+                }
+
+                for (int pi : hs.getRankedPageIndexes(searched_pages_cache.get(word), pageOffset)) {
+                    webpageList.add(CPIStartupService.getWebpageList().get(pi));
+
+                    searched_pages_cache.get(word).put(pi, pi);
+                }
+                //NOTE: text search not applied yet
+                return webpageList;
+
+            } else {
+                // return words from EDIT DISTANCE
+                return new ArrayList<>();
+            }
         }
     }
 
