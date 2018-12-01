@@ -1,6 +1,5 @@
 package com.uwindsor.cpisearch.Service;
 
-import com.sun.media.jfxmedia.logging.Logger;
 import com.uwindsor.cpisearch.Util.BinaryHeap;
 import org.springframework.stereotype.Service;
 

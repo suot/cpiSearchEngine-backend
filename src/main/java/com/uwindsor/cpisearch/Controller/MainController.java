@@ -47,7 +47,9 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
     }
 
     @RequestMapping("/ranktest")
-    public List<Webpage> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
+    public HashMap<String, List<Webpage>> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
+        double startTime = 0;
+        double endTime = 0;
 
         if (pageOffset != null && searched_pages_cache.containsKey(word) && page_offset_trackor.containsKey(word) && page_offset_trackor.get(word).contains(pageOffset)) {
 
@@ -60,6 +62,8 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
             if (pages.size() < end)
                 end = pages.size();
 
+            startTime = System.nanoTime();
+
             for (int i = start; i < end; i++) {
                 Webpage page = CPIStartupService.getWebpageList().get(pages.get(i));
                 String text = BruteForceMatch.offset_search(word, page.getText());
@@ -67,7 +71,13 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
                 webpageList.add(page);
             }
-            return webpageList;
+            endTime = System.nanoTime();
+
+            double totalSearchTime = endTime - startTime;
+
+            HashMap<String, List<Webpage>> result = organiseResults(webpageList, "results", (new Double(totalSearchTime).toString()));
+
+            return result;
 
         } else{
 
@@ -88,7 +98,15 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
                     page_offset_trackor.get(word).add(pageOffset);
                 }
 
-                for (int pi : hs.getRankedPageIndexes(searched_pages_cache.get(word), pageOffset)) {
+                startTime = System.nanoTime();
+
+                ArrayList<Integer> pageIndexes = hs.getRankedPageIndexes(searched_pages_cache.get(word), pageOffset);
+
+                endTime = System.nanoTime();
+
+                double totalSearchTime = endTime - startTime;
+
+                for (int pi : pageIndexes) {
                     Webpage page = CPIStartupService.getWebpageList().get(pi);
                     String text = BruteForceMatch.offset_search(word, page.getText());
 
@@ -98,22 +116,41 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
                     searched_pages_cache.get(word).put(pi, pi);
                 }
 
-                return webpageList;
+                HashMap<String, List<Webpage>> result = organiseResults(webpageList, "results", (new Double(totalSearchTime).toString()));
+
+                return result;
 
             } else {
                 // return words from EDIT DISTANCE
                 ArrayList<Webpage> suggestions = new ArrayList<Webpage>();
 
+                startTime = System.nanoTime();
+
                 Stack<String> words =  EditDistanceService.getRecommendedWordsByEditDistance(word);
+
+                endTime = System.nanoTime();
+
+                double totalSearchTime = endTime - startTime;
+
 
                 while(!words.empty()){
                     Webpage page = new Webpage("", "Suggestion", words.pop());
                     suggestions.add(page);
                 }
 
-                return suggestions;
+                HashMap<String, List<Webpage>> result = organiseResults(suggestions, "suggestions", (new Double(totalSearchTime).toString()));
+
+                return result;
             }
         }
+    }
+
+    private static HashMap<String, List<Webpage>> organiseResults(List<Webpage> pages, String name, String time){
+        HashMap<String, List<Webpage>> result = new HashMap<String, List<Webpage>>();
+        result.put(name, pages);
+        result.put((new Double(time).toString()), new ArrayList<Webpage>());
+
+        return result;
     }
 
     @RequestMapping("/rank")
