@@ -1,5 +1,7 @@
 package com.uwindsor.cpisearch.Util;
 
+
+import javax.jws.WebParam;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -102,6 +104,21 @@ public class BruteForceMatch {
         }
         if (j == M) return i - M;    // found
         else        return N;        // not found
+    }
+
+
+    public static String offset_search(String word, String text){
+        int position = search1(word, text);
+        int from = position-100;
+        int to = position+100;
+
+        if(from <= 0)
+            from = 0;
+
+        if (to >= text.length())
+            to = text.length()-1;
+
+        return text.substring(from, to);
     }
 
 

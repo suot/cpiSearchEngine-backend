@@ -62,8 +62,9 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
             for (int i = start; i < end; i++) {
                 Webpage page = CPIStartupService.getWebpageList().get(pages.get(i));
-                int position = BruteForceMatch.search1(word, page.getText());
-                page.setText(page.getText().substring(position, position+100));
+                String text = BruteForceMatch.offset_search(word, page.getText());
+                page.setText(text);
+
                 webpageList.add(page);
             }
             return webpageList;
@@ -89,18 +90,28 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
                 for (int pi : hs.getRankedPageIndexes(searched_pages_cache.get(word), pageOffset)) {
                     Webpage page = CPIStartupService.getWebpageList().get(pi);
-                    int position = BruteForceMatch.search1(word, page.getText());
-                    page.setText(page.getText().substring(position, position+100));
+                    String text = BruteForceMatch.offset_search(word, page.getText());
+
+                    page.setText(text);
                     webpageList.add(page);
 
                     searched_pages_cache.get(word).put(pi, pi);
                 }
-                //NOTE: text search not applied yet
+
                 return webpageList;
 
             } else {
                 // return words from EDIT DISTANCE
-                return new ArrayList<>();
+                ArrayList<Webpage> suggestions = new ArrayList<Webpage>();
+
+                Stack<String> words =  EditDistanceService.getRecommendedWordsByEditDistance(word);
+
+                while(!words.empty()){
+                    Webpage page = new Webpage("", "Suggestion", words.pop());
+                    suggestions.add(page);
+                }
+
+                return suggestions;
             }
         }
     }
@@ -122,7 +133,9 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
         }
         else{
             // return words from EDIT DISTANCE
-            return new ArrayList<>();
+            ArrayList<Webpage> suggestions = new ArrayList<Webpage>();
+
+            return suggestions;
         }
     }
 
