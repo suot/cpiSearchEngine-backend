@@ -6,7 +6,6 @@ import com.uwindsor.cpisearch.Service.EditDistanceService;
 import com.uwindsor.cpisearch.Service.HeapSortService;
 import com.uwindsor.cpisearch.Service.TSTPrefixService;
 
-import com.uwindsor.cpisearch.Util.BoyerMoore;
 import com.uwindsor.cpisearch.Util.BruteForceMatch;
 
 import org.slf4j.Logger;
