@@ -3,8 +3,6 @@ package com.uwindsor.cpisearch.Service;
 import com.uwindsor.cpisearch.Entity.Webpage;
 import com.uwindsor.cpisearch.Util.InvertedIndex;
 import com.uwindsor.cpisearch.Util.TST;
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -23,11 +21,9 @@ public class CPIStartupService {
     private static HashSet<String> urlHashSet;
     private static List<Webpage> webpageList;
     private static HashSet<String> wordBlackList;
-    private static BidiMap lookupTable ;
-    //<word, <indexOfWebPage, frequencyInEveryWebPage>>
+    //pairs of <word, <indexOfWebPage, frequencyInEveryWebPage>>
     private static TST<HashMap<Integer, Integer>> tst;
     private static InvertedIndex<String, Integer, Integer> invertedIndex;
-    private static HashMap<String,Integer> tstPrefixHashMap;
 
 
     public static HashSet<String> getUrlHashSet() {
@@ -41,14 +37,10 @@ public class CPIStartupService {
     public static InvertedIndex<String, Integer, Integer> getInvertedIndex() {
         return invertedIndex;
     }
-	
-	public static TST<HashMap<Integer, Integer>> getTST(){
-		return tst;
-	}
 
-	public static BidiMap getTstLookUpTable(){ return lookupTable; }
-
-	public static HashMap<String,Integer> getTstPrefixHashMap () { return tstPrefixHashMap; }
+    public static TST<HashMap<Integer, Integer>> getTst() {
+        return tst;
+    }
 
     /**
      * Generate a global list containing Webpage objects. Each Webpage object has title, text extracted from url html, and TST extracted from its text and containing the <word, frequency> pairs for further sorting or ranking use.
@@ -229,8 +221,6 @@ public class CPIStartupService {
                 //Traverse every webpage
                 logger.info("Traverse webpageList and construct TST. Two words in different case, upper or lower, are treated as one tokenizer.");
                 tst = new TST<>();
-                tstPrefixHashMap = new HashMap<>();
-                lookupTable =  new DualHashBidiMap();
                 Webpage webpage;
                 for(int i = 0; i< webpageList.size(); i++){
                     webpage = webpageList.get(i);
@@ -238,7 +228,7 @@ public class CPIStartupService {
                     tokenizer = new StringTokenizer(webpage.getText(), delimiter);
                     String word;
                     HashMap<Integer, Integer> hashMap;
-					//hash map of <Word,freq>
+
                     while (tokenizer.hasMoreTokens()) {
                         //two words in different case, upper or lower, are treated as one tokenizer.
                         word = tokenizer.nextToken().toLowerCase();
@@ -246,50 +236,21 @@ public class CPIStartupService {
                         if(!wordBlackList.contains(word)) {
                             if (tst.contains(word)) {
                                 hashMap = tst.get(word);
-                               // tstPrefixHashMap.put(word,invertedIndex.getFrequency(word));
+
                                 if(hashMap.containsKey(i)){
                                     hashMap.put(i, hashMap.get(i) + 1);
-
-									//increment the freq of word
                                 }else{
                                     hashMap.put(i, 1);
-                                    //insert the word with freq as 1
-                                    tstPrefixHashMap.put(word,1);
                                 }
                                 tst.put(word, hashMap);
 
                             } else {
-                                tstPrefixHashMap.put(word,1);
                                 tst.put(word, new HashMap<>());
                                 tst.get(word).put(i, 1);
-								//insert into HashMap<Word,freq>
-                                //tstPrefixHashMap.put(word,1);
                             }
                         }
                     }
                 }
-                long startTime  = System.currentTimeMillis();
-                int i=0;
-                Iterator itr = tstPrefixHashMap.keySet().iterator();
-                while(itr.hasNext()) {
-                    String str = itr.next().toString();
-                    lookupTable.put(str, i);
-                    i++;
-                }
-                logger.info(lookupTable.entrySet().toString());
-                logger.info(lookupTable.values().toString());
-                long endTime = System.currentTimeMillis();
-                logger.info("Time to create lookup table:"+(endTime - startTime));
-
-                long startTime1  = System.currentTimeMillis();
-                Stack<String> rankedwordStack = TSTPrefixService.getPrefixes("win");
-                long endTime1 = System.currentTimeMillis();
-                 for(String str:rankedwordStack)
-                {
-                    logger.info("Prefix is :"+str);
-                }
-
-
                 logger.info("The global tst has been generated with the size of " + tst.size());
             }
         }
