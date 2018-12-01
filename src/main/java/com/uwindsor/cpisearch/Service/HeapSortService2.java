@@ -1,6 +1,8 @@
 package com.uwindsor.cpisearch.Service;
 
 import com.uwindsor.cpisearch.Util.BinaryHeap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -11,6 +13,8 @@ public class HeapSortService2 {
     private HashMap<String, Integer> pageHash;
     private BinaryHeap<Integer> heap;
     private HashMap<Integer, ArrayList<String>> frequency_mapper_to_page; // to track duplicate frequencies
+    private static Logger logger = LoggerFactory.getLogger(HeapSortService2.class);
+
 
     public HeapSortService2(HashMap<String, Integer> unsortedPrefixMatches){
         pageHash = unsortedPrefixMatches;
@@ -80,8 +84,11 @@ public class HeapSortService2 {
         Stack<String> suggestions;
         if(!heap.isEmpty()){
             suggestions = new Stack<>();
-            while(heap.findMin()!=null){
-                suggestions.push(frequency_mapper_to_page.get(heap.deleteMin()).remove(0));
+            while(heap.findMin()!= null){
+                int frequency = heap.deleteMin();
+                String word = frequency_mapper_to_page.get(frequency).remove(0);
+                suggestions.push(word);
+                logger.info("Suggestion word: " + word + ". Frequency: " + frequency);
             }
             return suggestions;
         }else{
