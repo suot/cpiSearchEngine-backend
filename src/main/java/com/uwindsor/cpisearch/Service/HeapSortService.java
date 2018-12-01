@@ -148,9 +148,11 @@ public class HeapSortService {
         Stack pages = new Stack();
 
         for (int i=0; i < PAGINATION_OFFSET_LIMIT; i++){
-            pages.push(
-                    frequency_mapper_to_page.get(heap.deleteMin()).remove(0)
-            );
+            if(heap.findMin()!=null) {
+                pages.push(
+                        frequency_mapper_to_page.get(heap.deleteMin()).remove(0)
+                );
+            }
         }
 
         heap = new BinaryHeap<Integer>();
