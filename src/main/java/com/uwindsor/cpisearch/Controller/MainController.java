@@ -4,6 +4,10 @@ import com.uwindsor.cpisearch.Entity.Webpage;
 import com.uwindsor.cpisearch.Service.CPIStartupService;
 import com.uwindsor.cpisearch.Service.HeapSortService;
 import com.uwindsor.cpisearch.Service.TSTPrefixService;
+
+import com.uwindsor.cpisearch.Util.BoyerMoore;
+import com.uwindsor.cpisearch.Util.BruteForceMatch;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Stack;
+
 
 /**
  * Created by Suo Tian on 2018/10/30.
@@ -55,9 +60,12 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
             if (pages.size() < end)
                 end = pages.size();
 
-            for (int i = start; i < end; i++)
-                webpageList.add(CPIStartupService.getWebpageList().get(pages.get(i)));
-
+            for (int i = start; i < end; i++) {
+                Webpage page = CPIStartupService.getWebpageList().get(pages.get(i));
+                int position = BruteForceMatch.search1(word, page.getText());
+                page.setText(page.getText().substring(position, position+100));
+                webpageList.add(page);
+            }
             return webpageList;
 
         } else{
@@ -80,7 +88,10 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
                 }
 
                 for (int pi : hs.getRankedPageIndexes(searched_pages_cache.get(word), pageOffset)) {
-                    webpageList.add(CPIStartupService.getWebpageList().get(pi));
+                    Webpage page = CPIStartupService.getWebpageList().get(pi);
+                    int position = BruteForceMatch.search1(word, page.getText());
+                    page.setText(page.getText().substring(position, position+100));
+                    webpageList.add(page);
 
                     searched_pages_cache.get(word).put(pi, pi);
                 }
