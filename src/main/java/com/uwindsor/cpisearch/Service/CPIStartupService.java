@@ -21,7 +21,7 @@ public class CPIStartupService {
     private static HashSet<String> urlHashSet;
     private static List<Webpage> webpageList;
     private static HashSet<String> wordBlackList;
-    //<word, <indexOfWebPage, frequencyInEveryWebPage>>
+    //pairs of <word, <indexOfWebPage, frequencyInEveryWebPage>>
     private static TST<HashMap<Integer, Integer>> tst;
     private static InvertedIndex<String, Integer, Integer> invertedIndex;
 
