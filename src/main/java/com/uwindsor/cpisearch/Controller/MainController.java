@@ -3,6 +3,7 @@ package com.uwindsor.cpisearch.Controller;
 import com.uwindsor.cpisearch.Entity.Webpage;
 import com.uwindsor.cpisearch.Service.CPIStartupService;
 import com.uwindsor.cpisearch.Service.HeapSortService;
+import com.uwindsor.cpisearch.Service.TSTPrefixService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by Suo Tian on 2018/10/30.
@@ -23,6 +25,7 @@ import java.util.List;
 public class MainController {
     @Autowired
     private CPIStartupService cpiStartupService;
+
 
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
     private static Webpage[] webpages;
@@ -74,6 +77,16 @@ public class MainController {
             // return words from EDIT DISTANCE
             return new ArrayList<>();
         }
+    }
+
+
+    @RequestMapping("/suggestion")
+    public Stack<String> suggestion(@RequestParam String word) throws IOException {
+
+        System.out.println("Find prefix matchinig for: " + word);
+        /* test suggestion of the input word */
+        return TSTPrefixService.getPrefixes(word);
+
     }
 
 
