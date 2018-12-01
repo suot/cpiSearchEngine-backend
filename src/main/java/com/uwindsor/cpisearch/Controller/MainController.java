@@ -2,6 +2,7 @@ package com.uwindsor.cpisearch.Controller;
 
 import com.uwindsor.cpisearch.Entity.Webpage;
 import com.uwindsor.cpisearch.Service.CPIStartupService;
+import com.uwindsor.cpisearch.Service.EditDistanceService;
 import com.uwindsor.cpisearch.Service.HeapSortService;
 import com.uwindsor.cpisearch.Service.TSTPrefixService;
 import org.slf4j.Logger;
@@ -117,7 +118,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
 
     @RequestMapping("/suggestion")
-    public Stack<String> suggestion(@RequestParam String word) throws IOException {
+    public Stack<String> suggestion(@RequestParam String word){
 
         System.out.println("Find prefix matchinig for: " + word);
         /* test suggestion of the input word */
@@ -125,5 +126,10 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
     }
 
+    @RequestMapping("/editDistance")
+    public Stack<String> recommend(@RequestParam String word){
+        System.out.println("Find recommendations for: " + word + " with the edit distance equals to 1");
+        return EditDistanceService.getRecommendedWordsByEditDistance(word);
+    }
 
 }

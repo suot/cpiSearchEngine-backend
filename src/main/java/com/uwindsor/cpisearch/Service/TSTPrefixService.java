@@ -30,8 +30,10 @@ public class TSTPrefixService {
         }
         HashMap<String, Integer> serviceHashMap = new HashMap<>();
         for (String s : tstPrefixes) {
-            logger.info("String is:" + s);
-            serviceHashMap.put(s, integerInvertedIndex.getFrequency(s));
+            int f = integerInvertedIndex.getFrequency(s);
+            serviceHashMap.put(s, f);
+            logger.info("String: " + s + ". Total frequency: " + f);
+
         }
         logger.info("Unsorted hash map:" + serviceHashMap);
         HeapSortService2 sortPrefix = new HeapSortService2(serviceHashMap);
