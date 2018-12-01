@@ -38,6 +38,9 @@ public class CPIStartupService {
         return invertedIndex;
     }
 
+    public static TST<HashMap<Integer, Integer>> getTst() {
+        return tst;
+    }
 
     /**
      * Generate a global list containing Webpage objects. Each Webpage object has title, text extracted from url html, and TST extracted from its text and containing the <word, frequency> pairs for further sorting or ranking use.

@@ -27,12 +27,6 @@ public class MainController {
     private static Logger logger = LoggerFactory.getLogger(MainController.class);
     private static Webpage[] webpages;
 
-//    @RequestMapping("/startup")
-//    public String cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
-//        cpiStartupService.cpiStartup(domain, maximumAmount, maximumDepth);
-////        return CPIStartupService.getInvertedIndexHashMap();
-//        return domain;
-//    }
 
     @RequestMapping("/startup")
     public HashMap<String, HashMap<Integer, Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
@@ -61,10 +55,25 @@ public class MainController {
         }
     }
 
-    @RequestMapping("/search")
-    @ResponseBody
-    public void getSearchResult() {
+    @RequestMapping("/rank")
+    public List<Webpage> rank(@RequestParam String word) throws IOException {
 
+        System.out.println("Search query: " + word);
+        /* test search word */
+        if(CPIStartupService.getInvertedIndex().getmHash().containsKey(word) && CPIStartupService.getInvertedIndex().get_all(word) != null){
+            HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().get_all(word));
+
+            List<Webpage> webpageList = new ArrayList<Webpage>();
+            for(int pi : hs.getRankedPageIndexes())
+                webpageList.add(CPIStartupService.getWebpageList().get(pi));
+
+            //NOTE: text search not applied yet
+            return webpageList;
+        }
+        else{
+            // return words from EDIT DISTANCE
+            return new ArrayList<>();
+        }
     }
 
 

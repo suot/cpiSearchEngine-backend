@@ -46,6 +46,20 @@ public class InvertedIndex<K1, K2, V> {
         }
     }
 
+    public Integer getFrequency(K1 key1){
+        if(mHash.containsKey(key1)) {
+            int frequency = 0;
+            //get pairs of <Index, Frequency> for string key1. Index refers to the index of webpage in the webpageList
+            HashMap<K2, V> hashMap = mHash.get(key1);
+            for(K2 index : hashMap.keySet()){
+                frequency = frequency + (Integer) hashMap.get(index);
+            }
+            return frequency;
+        }else{
+            return null;
+        }
+    }
+
     public boolean containsKey(K1 key1, K2 key2) {
         if(mHash.containsKey(key1)) {
             if(mHash.get(key1).containsKey(key2)) {
