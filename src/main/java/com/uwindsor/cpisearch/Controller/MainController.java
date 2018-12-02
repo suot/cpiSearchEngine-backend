@@ -25,6 +25,7 @@ import java.util.Stack;
 
 /**
  * Created by Suo Tian on 2018/10/30.
+ * Modified by Ittsel Ali on 2018/12/01
  */
 
 @CrossOrigin
@@ -39,8 +40,8 @@ public class MainController {
     private static Webpage[] webpages;
     private final int PAGE_OFFSET_LIMIT=5;
 
-public static HashMap<String, LinkedHashMap<Integer, Integer>> searched_pages_cache = new HashMap<String, LinkedHashMap<Integer, Integer>>();
-public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new HashMap<String, ArrayList<Integer>>();
+    public static HashMap<String, LinkedHashMap<Integer, Integer>> searched_pages_cache = new HashMap<String, LinkedHashMap<Integer, Integer>>();
+    public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new HashMap<String, ArrayList<Integer>>();
 
     @RequestMapping("/startup")
     public HashMap<String, HashMap<Integer, Integer>> cpiStartup(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth) throws IOException {
@@ -49,11 +50,16 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
     }
 
     @RequestMapping("/ranktest")
-    public Result ranktest(@RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
+    public Result ranktest(@RequestParam String word, @RequestParam String stringPageOffset) throws IOException {
+
+        System.out.println("word: " + word + " pageOffset: "+ stringPageOffset);
+        Integer pageOffset = Integer.parseInt(stringPageOffset);
+
         double startTime = 0;
         double endTime = 0;
 
-        if (pageOffset != null && searched_pages_cache.containsKey(word) && page_offset_trackor.containsKey(word) && page_offset_trackor.get(word).contains(pageOffset)) {
+        if (searched_pages_cache.containsKey(word) && page_offset_trackor.containsKey(word) && page_offset_trackor.get(word).contains(pageOffset)) {
+//        if (pageOffset != null && searched_pages_cache.containsKey(word) && page_offset_trackor.containsKey(word) && page_offset_trackor.get(word).contains(pageOffset)) {
 
             int start = page_offset_trackor.get(word).indexOf(pageOffset) * PAGE_OFFSET_LIMIT;
             int end = start + PAGE_OFFSET_LIMIT;
@@ -142,6 +148,19 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
         }
     }
 
+
+    @RequestMapping("/suggestion")
+    public Stack<String> suggestion(@RequestParam String word){
+
+        logger.info("Find prefix matchinig for: " + word);
+        /* test suggestion of the input word */
+        return TSTPrefixService.getPrefixes(word);
+
+    }
+
+
+
+
     private static HashMap<String, List<Webpage>> organiseResults(List<Webpage> pages, String name, String time){
         HashMap<String, List<Webpage>> result = new HashMap<String, List<Webpage>>();
         result.put(name, pages);
@@ -173,19 +192,9 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
         }
     }
 
-
-    @RequestMapping("/suggestion")
-    public Stack<String> suggestion(@RequestParam String word){
-
-        System.out.println("Find prefix matchinig for: " + word);
-        /* test suggestion of the input word */
-        return TSTPrefixService.getPrefixes(word);
-
-    }
-
     @RequestMapping("/editDistance")
     public Stack<String> recommend(@RequestParam String word){
-        System.out.println("Find recommendations for: " + word + " with the edit distance equals to 1");
+        logger.info("Find recommendations for: " + word + " with the edit distance equals to 1");
         return EditDistanceService.getRecommendedWordsByEditDistance(word);
     }
 
