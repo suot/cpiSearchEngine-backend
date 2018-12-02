@@ -13,6 +13,7 @@ import java.util.*;
 @Service
 public class EditDistanceService {
     private static Logger logger = LoggerFactory.getLogger(HeapSortService2.class);
+    private static final int EDIT_DISTANCE_LIMIT = 2;
 
     public static Stack<String> getRecommendedWordsByEditDistance(String word){
         InvertedIndex<String, Integer, Integer> integerInvertedIndex = CPIStartupService.getInvertedIndex();
@@ -24,7 +25,7 @@ public class EditDistanceService {
         if (wordInLowerCase != null && wordInLowerCase != ""){
             logger.info("Start to calculate the edit distance between " + word + " and all keys in invertedIndex...");
             for(String key : integerInvertedIndex.getmHash().keySet()){
-                if(Sequences.editDistance(key, wordInLowerCase) == 1){
+                if(Sequences.editDistance(key, wordInLowerCase) <= EDIT_DISTANCE_LIMIT){
                     unsortedRecommendedString.add(key);
                 }else{
                     continue;
@@ -33,7 +34,7 @@ public class EditDistanceService {
         }
 
         if(unsortedRecommendedString.isEmpty()){
-            logger.info("Edit distance function ends up. No recommendation found with the edit distance value 1.");
+            logger.info("Edit distance function ends up. No recommendation found.");
             return null;
         }else {
             HashMap<String, Integer> serviceHashMap = new HashMap<>();
