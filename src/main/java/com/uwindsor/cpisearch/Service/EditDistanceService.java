@@ -33,6 +33,7 @@ public class EditDistanceService {
         }
 
         if(unsortedRecommendedString.isEmpty()){
+            logger.info("Edit distance function ends up. No recommendation found with the edit distance value 1.");
             return null;
         }else {
             HashMap<String, Integer> serviceHashMap = new HashMap<>();
