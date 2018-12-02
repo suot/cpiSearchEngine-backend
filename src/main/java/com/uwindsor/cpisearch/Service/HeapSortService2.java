@@ -88,7 +88,7 @@ public class HeapSortService2 {
                 int frequency = heap.deleteMin();
                 String word = frequency_mapper_to_page.get(frequency).remove(0);
                 suggestions.push(word);
-                logger.info("Suggestion word: " + word + ". Frequency: " + frequency);
+                //logger.info("Suggestion word: " + word + ". Frequency: " + frequency);
             }
             return invertStack(suggestions);
         }else{

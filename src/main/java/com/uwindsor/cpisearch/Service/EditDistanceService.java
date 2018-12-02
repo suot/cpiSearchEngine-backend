@@ -24,6 +24,8 @@ public class EditDistanceService {
 
         if (wordInLowerCase != null && wordInLowerCase != ""){
             logger.info("Start to calculate the edit distance between " + word + " and all keys in invertedIndex...");
+            long startTime = System.nanoTime();
+
             for(String key : integerInvertedIndex.getmHash().keySet()){
                 if(Sequences.editDistance(key, wordInLowerCase) <= EDIT_DISTANCE_LIMIT){
                     unsortedRecommendedString.add(key);
@@ -31,6 +33,9 @@ public class EditDistanceService {
                     continue;
                 }
             }
+
+            long endTime = System.nanoTime();
+            logger.info("All words with the edit distance 1 or 2 from " + word + " are found, costing " + (endTime - startTime)+" nanoseconds");
         }
 
         if(unsortedRecommendedString.isEmpty()){
@@ -42,7 +47,7 @@ public class EditDistanceService {
             for (String s : unsortedRecommendedString) {
                 f = integerInvertedIndex.getFrequency(s);
                 serviceHashMap.put(s, f);
-                logger.info("String: " + s + ". Total frequency: " + f);
+                //logger.info("String: " + s + ". Total frequency: " + f);
             }
 
             logger.info("Unsorted hash map: " + serviceHashMap);
