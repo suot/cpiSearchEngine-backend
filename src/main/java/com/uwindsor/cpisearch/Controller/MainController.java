@@ -49,7 +49,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
     }
 
     @RequestMapping("/ranktest")
-    public Result ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
+    public Result ranktest(@RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
         double startTime = 0;
         double endTime = 0;
 
