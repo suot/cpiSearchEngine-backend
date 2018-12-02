@@ -1,6 +1,8 @@
 package com.uwindsor.cpisearch.Controller;
 
+import com.uwindsor.cpisearch.Entity.Result;
 import com.uwindsor.cpisearch.Entity.Webpage;
+import com.uwindsor.cpisearch.Entity.Webpage2;
 import com.uwindsor.cpisearch.Service.CPIStartupService;
 import com.uwindsor.cpisearch.Service.EditDistanceService;
 import com.uwindsor.cpisearch.Service.HeapSortService;
@@ -47,7 +49,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
     }
 
     @RequestMapping("/ranktest")
-    public HashMap<String, List<Webpage>> ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
+    public Result ranktest(@RequestParam String domain, @RequestParam int maximumAmount, @RequestParam int maximumDepth, @RequestParam String word, @RequestParam Integer pageOffset) throws IOException {
         double startTime = 0;
         double endTime = 0;
 
@@ -57,7 +59,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
             int end = start + PAGE_OFFSET_LIMIT;
 
             ArrayList<Integer> pages = new ArrayList<Integer>(searched_pages_cache.get(word).keySet());
-            List<Webpage> webpageList = new ArrayList<Webpage>();
+            List<Webpage2> webpageList = new ArrayList<Webpage2>();
 
             if (pages.size() < end)
                 end = pages.size();
@@ -67,15 +69,16 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
             for (int i = start; i < end; i++) {
                 Webpage page = CPIStartupService.getWebpageList().get(pages.get(i));
                 String text = BruteForceMatch.offset_search(word, page.getText());
-                page.setText(text);
 
-                webpageList.add(page);
+                Webpage2 result_page = new Webpage2(page.getUrl(), page.getTitle(), text, CPIStartupService.getInvertedIndex().get_all(word).get(pages.get(i)));
+
+                webpageList.add(result_page);
             }
             endTime = System.nanoTime();
 
             double totalSearchTime = endTime - startTime;
 
-            HashMap<String, List<Webpage>> result = organiseResults(webpageList, "results", (new Double(totalSearchTime).toString()));
+            Result result = new Result(webpageList, CPIStartupService.getInvertedIndex().get_all(word).size(), totalSearchTime, null);
 
             return result;
 
@@ -85,7 +88,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
             if (CPIStartupService.getInvertedIndex().getmHash().containsKey(word) && CPIStartupService.getInvertedIndex().get_all(word) != null) {
                 HeapSortService hs = new HeapSortService(CPIStartupService.getInvertedIndex().get_all(word), PAGE_OFFSET_LIMIT);
 
-                List<Webpage> webpageList = new ArrayList<Webpage>();
+                List<Webpage2> webpageList = new ArrayList<Webpage2>();
 
 
                 if (!searched_pages_cache.containsKey(word)) {
@@ -110,19 +113,19 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
                     Webpage page = CPIStartupService.getWebpageList().get(pi);
                     String text = BruteForceMatch.offset_search(word, page.getText());
 
-                    page.setText(text);
-                    webpageList.add(page);
+                    Webpage2 result_page = new Webpage2(page.getUrl(), page.getTitle(), text, CPIStartupService.getInvertedIndex().get_all(word).get(pi));
+
+                    webpageList.add(result_page);
 
                     searched_pages_cache.get(word).put(pi, pi);
                 }
 
-                HashMap<String, List<Webpage>> result = organiseResults(webpageList, "results", (new Double(totalSearchTime).toString()));
+                Result result = new Result(webpageList, CPIStartupService.getInvertedIndex().get_all(word).size(), totalSearchTime, null);
 
                 return result;
 
             } else {
                 // return words from EDIT DISTANCE
-                ArrayList<Webpage> suggestions = new ArrayList<Webpage>();
 
                 startTime = System.nanoTime();
 
@@ -132,13 +135,7 @@ public static HashMap<String, ArrayList<Integer>> page_offset_trackor = new Hash
 
                 double totalSearchTime = endTime - startTime;
 
-
-                while(!words.empty()){
-                    Webpage page = new Webpage("", "Suggestion", words.pop());
-                    suggestions.add(page);
-                }
-
-                HashMap<String, List<Webpage>> result = organiseResults(suggestions, "suggestions", (new Double(totalSearchTime).toString()));
+                Result result = new Result(null, 0, totalSearchTime, words);
 
                 return result;
             }
