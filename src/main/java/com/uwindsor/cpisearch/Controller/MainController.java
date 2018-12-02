@@ -74,13 +74,20 @@ public class MainController {
 
             for (int i = start; i < end; i++) {
                 Webpage page = CPIStartupService.getWebpageList().get(pages.get(i));
-                String text = BruteForceMatch.offset_search(word, page.getText());
 
-                Webpage2 result_page = new Webpage2(page.getUrl(), page.getTitle(), text, CPIStartupService.getInvertedIndex().get_all(word).get(pages.get(i)));
+                Webpage2 result_page = new Webpage2(page.getUrl(), page.getTitle(), page.getText(), CPIStartupService.getInvertedIndex().get_all(word).get(pages.get(i)));
 
                 webpageList.add(result_page);
             }
+
             endTime = System.nanoTime();
+
+            for (Webpage2 page : webpageList) {
+                String text = BruteForceMatch.offset_search(word, page.getText());
+
+                page.setText(text);
+            }
+
 
             double totalSearchTime = endTime - startTime;
 
