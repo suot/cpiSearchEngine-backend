@@ -21,6 +21,7 @@ public class TSTPrefixService {
         TST<HashMap<Integer, Integer>> tst = CPIStartupService.getTst();
         Iterable<String> tstPrefixes = null;
         String searchPrefix = prefix.toLowerCase().trim();
+        long startTime = System.nanoTime();
         try {
             if (searchPrefix != null && searchPrefix != "") {
                 tstPrefixes = tst.prefixMatch(searchPrefix);
@@ -38,8 +39,8 @@ public class TSTPrefixService {
         logger.info("Unsorted hash map:" + serviceHashMap);
         HeapSortService2 sortPrefix = new HeapSortService2(serviceHashMap);
         Stack<String> rankedPages = sortPrefix.getRankedPageIndexes();
-        logger.info("Sorted hash map:" + rankedPages);
-        //rankedWordStack = getRankedPrefixStack(rankedPages);
+        long endTime = System.nanoTime();
+        logger.info("Time to generate suggestions: "+(endTime - startTime));
         return rankedPages;
     }
 

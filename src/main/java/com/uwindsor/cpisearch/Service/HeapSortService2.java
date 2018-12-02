@@ -90,14 +90,17 @@ public class HeapSortService2 {
                 suggestions.push(word);
                 logger.info("Suggestion word: " + word + ". Frequency: " + frequency);
             }
-            return suggestions;
+            return invertStack(suggestions);
         }else{
             return null;
         }
     }
 
     private Stack<String> invertStack(Stack<String> stack){
-
-        return null;
+        Stack<String> invertedStack = new Stack<>();
+        int size = stack.size();
+        for(int i=0;i<size;i++)
+        invertedStack.push(stack.pop());
+        return invertedStack;
     }
 }
