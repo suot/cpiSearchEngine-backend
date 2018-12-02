@@ -119,6 +119,12 @@ public class BruteForceMatch {
             to = text.length()-1;
 
         return text.substring(from, to);
+
+//        String prefix = "<font color=\"red\">";
+//        String postfix = "</font>";
+//        String textWithHighlight = text.substring(from, position-1) + prefix + text.substring(position, position+word.length()-1) + postfix + text.substring(position+word.length(), to);
+//
+//        return textWithHighlight;
     }
 
 

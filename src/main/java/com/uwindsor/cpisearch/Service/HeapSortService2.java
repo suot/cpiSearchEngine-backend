@@ -95,4 +95,9 @@ public class HeapSortService2 {
             return null;
         }
     }
+
+    private Stack<String> invertStack(Stack<String> stack){
+
+        return null;
+    }
 }
